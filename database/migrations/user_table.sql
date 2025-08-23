@@ -15,4 +15,19 @@ CREATE TABLE `users` (
     `remember_token` VARCHAR(100) NULL,
     `created_at` TIMESTAMP NULL DEFAULT NULL,
     `updated_at` TIMESTAMP NULL DEFAULT NULL
-) 
+);
+
+ALTER TABLE `users`
+ADD CONSTRAINT `chk_email_format` CHECK (
+    `email` LIKE '%@%'
+);
+
+ALTER TABLE `users`
+ADD CONSTRAINT `chk_password_length` CHECK (
+    CHAR_LENGTH(`password`) > 6
+);
+
+ALTER TABLE `users`
+ADD CONSTRAINT `chk_contact_number_length` CHECK (
+    CHAR_LENGTH(`contact_number`) = 11 
+);
