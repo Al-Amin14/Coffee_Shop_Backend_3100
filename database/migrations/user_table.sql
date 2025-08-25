@@ -15,7 +15,7 @@ CREATE TABLE `users` (
     `remember_token` VARCHAR(100) NULL,
     `created_at` TIMESTAMP NULL DEFAULT NULL,
     `updated_at` TIMESTAMP NULL DEFAULT NULL
-)
+);
 
 ALTER TABLE `users`
 ADD CONSTRAINT `chk_email_format` CHECK (`email` LIKE '%@%');
