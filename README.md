@@ -7,9 +7,9 @@ https://www.figma.com/design/SvXCRA28QLWCbgFWzwbXhZ/A1_group07_Coffee_Shop?node-
 The objective of this project is to develop an efficient and user-friendly Coffee Shop Management System that streamlines operations such as order management, inventory control, sales tracking, and customer service. The system aims to enhance both customer experience and business efficiency by integrating modern technologies and automation.
 ## Collaborators
 
-1.Md. Shahadat Hossain </br>
+1-> Md. Shahadat Hossain </br>
 [![wakatime](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e.svg)](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e)  </br>
-2.AL AMIN JIHAD </br>
+2-> AL AMIN JIHAD </br>
 [![wakatime](https://wakatime.com/badge/user/3da02b1c-7095-45c3-94fd-04673f582943/project/3e34ec2c-b4f8-492b-9ed9-053a89372b4a.svg)](https://wakatime.com/badge/user/3da02b1c-7095-45c3-94fd-04673f582943/project/3e34ec2c-b4f8-492b-9ed9-053a89372b4a)
 
 ## Target Audience
