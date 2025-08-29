@@ -14,14 +14,16 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        // Use 'auth:api' if you're using Passport, 'auth:jwt' or just 'auth' for JWT-auth package,
+        // adjust middleware accordingly
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only('email', 'password');
 
-        if (! $token = auth()->attempt($credentials)) {
+        if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -30,26 +32,23 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-
         Log::info('Registration request data:', $request->all());
 
-       
-        $validator = Validator::make($request->all(), rules: [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'contact_number' => 'required|string|size:11', 
+            'contact_number' => 'required|string|size:11',
             'password' => 'required|string|min:6',
-            
+            'role' => 'nullable|string|in:Customer,Manager', // optionally validate role
         ]);
 
-        if($validator->fails()){
-           
+        if ($validator->fails()) {
             Log::error('Validation failed:', $validator->errors()->toArray());
-            
+
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
-                'received_data' => $request->all() 
+                'received_data' => $request->all()
             ], 422);
         }
 
@@ -72,10 +71,9 @@ class AuthController extends Controller
                     'role' => $user->role,
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Registration error:', ['error' => $e->getMessage()]);
-            
+
             return response()->json([
                 'message' => 'Registration failed',
                 'error' => $e->getMessage()
@@ -105,7 +103,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'user' => auth()->user(),
         ]);
     }
 }
