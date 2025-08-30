@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -30,4 +31,16 @@ class ProductController extends Controller
             'product' => $product
         ]);
     }
+
+    public function allProducts(Request $request)
+    {
+        $products = DB::select("SELECT * FROM products");
+
+        return response()->json([
+            'success' => true,
+            'products' => $products
+        ]);
+    }
+
+
 }

@@ -26,6 +26,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
 Route::post('/addproduct', [ProductController::class, 'store']);
+Route::get('/allproducts', [ProductController::class, 'allProducts']);
 
 // Group routes with API middleware
 Route::middleware('auth:sanctum')->group(function () {
