@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Chart;
 
 //
 // 🔓 Public Routes
@@ -33,20 +34,29 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
 
-// Group routes with API middleware
+Route::get('/allproducts', [ProductController::class, 'allProducts'])->middleware('jwt.verify');
+Route::post('/addproduct', [ProductController::class, 'store'])->middleware('jwt.verify');
+// Group routes with API 
+Route::post('/orders', [OrderController::class, 'store'])->middleware('jwt.verify');
+Route::post('/increment', [Chart::class, 'increment'])->middleware('jwt.verify');
+Route::post('/decrement', [Chart::class, 'decrement'])->middleware('jwt.verify');
+
+Route::post('/addchart', [Chart::class, 'addToCart'])->middleware('jwt.verify');
+Route::put('/cart/increment/{cartId}', [Chart::class, 'increment'])->middleware('jwt.verify');
+Route::put('/cart/decrement/{cartId}', [Chart::class, 'decrement'])->middleware('jwt.verify');
+Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart'])->middleware('jwt.verify');
+
+
+
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::post('/me', [AuthController::class, 'me']);
 
-    // Product routes
-    Route::get('/allproducts', [ProductController::class, 'allProducts']);
-    Route::post('/addproduct', [ProductController::class, 'store']);
 
     // Order routes
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 });
