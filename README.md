@@ -11,6 +11,7 @@ The objective of this project is to develop an efficient and user-friendly Coffe
 [![wakatime](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e.svg)](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e)  </br>
 2-> AL AMIN JIHAD </br>
 [![wakatime](https://wakatime.com/badge/user/3da02b1c-7095-45c3-94fd-04673f582943/project/3e34ec2c-b4f8-492b-9ed9-053a89372b4a.svg)](https://wakatime.com/badge/user/3da02b1c-7095-45c3-94fd-04673f582943/project/3e34ec2c-b4f8-492b-9ed9-053a89372b4a)
+
 3-> Abdullah AL Muhit </br>
 [![wakatime](https://wakatime.com/badge/user/aaefaa84-9d83-42ba-9869-9891679ad01d/project/a19440b4-da64-4d0f-b45b-2a6574d77806.svg)](https://wakatime.com/badge/user/aaefaa84-9d83-42ba-9869-9891679ad01d/project/a19440b4-da64-4d0f-b45b-2a6574d77806)
 
