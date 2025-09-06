@@ -15,9 +15,14 @@ CREATE TABLE `carts` (
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Add foreign key constraints separately
 ALTER TABLE `carts`
 ADD CONSTRAINT `fk_carts_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `carts`
 ADD CONSTRAINT `fk_carts_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `carts`
+ADD COLUMN `image_path` VARCHAR(255) DEFAULT NULL AFTER `unit_price`;
+
+ALTER TABLE `carts`
+ADD COLUMN `product_name` VARCHAR(255) DEFAULT NULL AFTER `image_path`;

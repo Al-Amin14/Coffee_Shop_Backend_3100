@@ -6,6 +6,9 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+
+
+
 class OrderController extends Controller
 {
     public function __construct()
@@ -25,6 +28,15 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    public function getAllOrders()
+    {
+        $orders = Order::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($orders);
+    }
+
     // Store new order
     public function store(Request $request)
     {
@@ -32,6 +44,7 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'product_name' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'total_price' => 'required|numeric|min:0',
         ]);
@@ -43,7 +56,8 @@ class OrderController extends Controller
         $order->product_name = $validated['product_name'];
         $order->quantity = $validated['quantity'];
         $order->total_price = $validated['total_price'];
-        $order->status = 'pending';
+        $order->status = $validated['status'];
+        $order->MangerConfirm = 'pending';
         $order->image_path = $product->image_path ?? null;
         $order->save();
 
@@ -63,4 +77,32 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Order deleted']);
     }
+
+    public function updateConfirmedBy(Request $request, $id)
+    {
+        $request->validate([
+            'confirmed_by' => 'required|string|max:255',
+        ]);
+
+        $order = Order::find(id: $id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found!',
+            ], 404);
+        }
+
+        $order->update([
+            'confirmed_by' => $request->confirmed_by,
+            'MangerConfirm' => 'completed',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Confirmed by updated successfully!',
+            'order' => $order,
+        ]);
+    }
+
 }

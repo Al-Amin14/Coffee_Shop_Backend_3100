@@ -28,6 +28,8 @@ class Chart extends Controller
                 'product_id' => $request->product_id,
                 'quantity' => 1,
                 'unit_price' => $request->unit_price,
+                'image_path' => $request->image_path,
+                'product_name' => $request->product_name,
             ]);
         }
 

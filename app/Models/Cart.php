@@ -14,7 +14,9 @@ class Cart extends Model
         'product_id',
         'quantity',
         'unit_price',
-        'total_price'
+        'total_price',
+        'image_path',
+        'product_name'
     ];
 
     // Relationship: A cart belongs to a user

@@ -15,6 +15,8 @@ class Order extends Model
         'quantity',
         'total_price',
         'status',
+        'MangerConfirm',
+        'confirmed_by'
     ];
 
     public function user()
