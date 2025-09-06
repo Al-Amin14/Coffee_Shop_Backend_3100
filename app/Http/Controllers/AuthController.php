@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -19,32 +20,18 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
-    /**
-     * Handle user login and return JWT token.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return JsonResponse
-     */
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-
         if (!$token = Auth::attempt($credentials)) {
             return $this->errorResponse('Unauthorized', 401);
         }
-
         return $this->respondWithToken($token);
     }
 
-    /**
-     * Register a new user.
-     *
-     * @param  RegisterRequest  $request
-     * @return JsonResponse
-     */
     public function register(RegisterRequest $request): JsonResponse
     {
-        Log::info('Registration request data:', $request->validated());
+        Log::info('Registration request:', $request->validated());
 
         try {
             $user = User::create([
@@ -65,43 +52,22 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Get authenticated user details.
-     *
-     * @return JsonResponse
-     */
     public function me(): JsonResponse
     {
         return $this->successResponse(['user' => Auth::user()]);
     }
 
-    /**
-     * Log out the authenticated user.
-     *
-     * @return JsonResponse
-     */
     public function logout(): JsonResponse
     {
         Auth::logout();
         return $this->successResponse(['message' => 'Successfully logged out']);
     }
 
-    /**
-     * Refresh JWT token.
-     *
-     * @return JsonResponse
-     */
     public function refresh(): JsonResponse
     {
         return $this->respondWithToken(Auth::refresh());
     }
 
-    /**
-     * Format token response.
-     *
-     * @param  string  $token
-     * @return JsonResponse
-     */
     protected function respondWithToken(string $token): JsonResponse
     {
         return $this->successResponse([
