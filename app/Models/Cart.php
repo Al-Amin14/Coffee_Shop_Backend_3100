@@ -30,4 +30,10 @@ class Cart extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    // Accessor to get the product name easily from cart instance
+    public function getProductNameAttribute()
+    {
+        return $this->product ? $this->product->name : null;
+    }
 }
