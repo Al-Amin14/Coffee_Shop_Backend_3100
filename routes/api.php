@@ -6,17 +6,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Chart;
-<<<<<<< HEAD
 use App\Http\Controllers\ConfirmController;
 //
 // 🔓 Public Routes
 //
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-=======
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
->>>>>>> 1b88c3fa746ade60b6c7d550caf04430d98a56d4
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +73,6 @@ Route::middleware(['jwt.verify'])->group(function () {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-<<<<<<< HEAD
 
 // Public authentication routes
 Route::post('login', [AuthController::class, 'login']);
@@ -110,5 +106,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 });
-=======
->>>>>>> 1b88c3fa746ade60b6c7d550caf04430d98a56d4
