@@ -2,110 +2,113 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
-    public function login()
+    /**
+     * Handle user login and return JWT token.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return JsonResponse
+     */
+    public function login(Request $request): JsonResponse
     {
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only('email', 'password');
 
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Unauthorized', 401);
         }
 
         return $this->respondWithToken($token);
     }
 
-    public function register(Request $request)
+    /**
+     * Register a new user.
+     *
+     * @param  RegisterRequest  $request
+     * @return JsonResponse
+     */
+    public function register(RegisterRequest $request): JsonResponse
     {
-
-        Log::info('Registration request data:', $request->all());
-
-       
-        $validator = Validator::make($request->all(), rules: [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'contact_number' => 'required|string|size:11', 
-            'password' => 'required|string|min:6',
-            
-        ]);
-
-        if($validator->fails()){
-           
-            Log::error('Validation failed:', $validator->errors()->toArray());
-            
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-                'received_data' => $request->all() 
-            ], 422);
-        }
+        Log::info('Registration request data:', $request->validated());
 
         try {
             $user = User::create([
-                'name' => $request->get('name'),
-                'email' => $request->get('email'),
-                'contact_number' => $request->get('contact_number'),
-                'password' => Hash::make($request->get('password')),
-                'role' => $request->get('role', 'Customer'),
+                'name' => $request->name,
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'password' => Hash::make($request->password),
+                'role' => $request->role ?? 'Customer',
             ]);
 
-            return response()->json([
+            return $this->successResponse([
                 'message' => 'User successfully registered',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'contact_number' => $user->contact_number,
-                    'role' => $user->role,
-                ]
+                'user' => $user->only(['id', 'name', 'email', 'contact_number', 'role']),
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Registration error:', ['error' => $e->getMessage()]);
-            
-            return response()->json([
-                'message' => 'Registration failed',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse('Registration failed: ' . $e->getMessage(), 500);
         }
     }
 
-    public function me()
+    /**
+     * Get authenticated user details.
+     *
+     * @return JsonResponse
+     */
+    public function me(): JsonResponse
     {
-        return response()->json(auth()->user());
+        return $this->successResponse(['user' => Auth::user()]);
     }
 
-    public function logout()
+    /**
+     * Log out the authenticated user.
+     *
+     * @return JsonResponse
+     */
+    public function logout(): JsonResponse
     {
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        Auth::logout();
+        return $this->successResponse(['message' => 'Successfully logged out']);
     }
 
-    public function refresh()
+    /**
+     * Refresh JWT token.
+     *
+     * @return JsonResponse
+     */
+    public function refresh(): JsonResponse
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithToken(Auth::refresh());
     }
 
-    protected function respondWithToken($token)
+    /**
+     * Format token response.
+     *
+     * @param  string  $token
+     * @return JsonResponse
+     */
+    protected function respondWithToken(string $token): JsonResponse
     {
-        return response()->json([
+        return $this->successResponse([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'expires_in' => Auth::factory()->getTTL() * 60,
+            'user' => Auth::user(),
         ]);
     }
 }
