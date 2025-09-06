@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Deposit;
-use App\Models\OrderItem;
-use App\Models\Order;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use Stripe\Exception\SignatureVerificationException;
@@ -15,69 +12,34 @@ class StripeWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
     {
+        // Set your Stripe secret key
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $endpointSecret = env('STRIPE_WEBHOOK_SECRET');
+        // Retrieve the payload and signature
+        $sig_header = $request->header('Stripe-Signature');
         $payload = $request->getContent();
-        $sigHeader = $request->header('Stripe-Signature');
+        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
 
         try {
-            $event = Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
+            // Verify the webhook signature
+            $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
         } catch (SignatureVerificationException $e) {
-            Log::error("Webhook Error: Invalid Signature", ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Invalid signature'], 400);
-        } catch (\UnexpectedValueException $e) {
-            Log::error("Webhook Error: Invalid Payload", ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Invalid payload'], 400);
+            return response()->json(['error' => 'Invalid Signature'], 400);
         }
 
-        switch ($event->type) {
-            case 'checkout.session.completed':
-                $session = $event->data->object;
+        // Handle the checkout session completion event
+        if ($event->type === 'checkout.session.completed') {
+            $session = $event->data->object;
+            $session_id = $session->id;
 
-                $deposit = Deposit::where('session_id', $session->id)->first();
-
-                if ($deposit) {
-                    if ($deposit->status !== 'Completed') {
-                        $deposit->status = 'Completed';
-                        $deposit->save();
-
-                        Log::info('Deposit updated to Completed.', [
-                            'session_id' => $session->id,
-                            'amount' => $deposit->amount,
-                            'user_id' => $deposit->user_id,
-                        ]);
-
-                        // ✅ Create orders from OrderItems
-                        $items = OrderItem::where('deposit_id', $deposit->id)->get();
-
-                        foreach ($items as $item) {
-                            Order::create([
-                                'user_id' => $deposit->user_id,
-                                'product_name' => $item->product_name,
-                                'quantity' => $item->quantity,
-                                'total_price' => $item->unit_price * $item->quantity,
-                                'status' => 'processing',
-                                'image_path' => null // optionally load from product table
-                            ]);
-                        }
-
-                        Log::info('Orders created for user after checkout.', [
-                            'user_id' => $deposit->user_id,
-                            'order_count' => count($items)
-                        ]);
-                    }
-                } else {
-                    Log::warning("No deposit found for session_id: " . $session->id);
-                }
-
-                break;
-
-            default:
-                Log::info("Unhandled event type: " . $event->type);
-                break;
+            // Find the deposit and mark it as completed
+            $deposit = Deposit::where('session_id', $session_id)->first();
+            if ($deposit) {
+                $deposit->status = 'Completed';
+                $deposit->save();
+            }
         }
 
-        return response()->json(['status' => 'Webhook received']);
+        return response()->json(['status' => 'success']);
     }
 }
