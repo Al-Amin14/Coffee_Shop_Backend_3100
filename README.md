@@ -15,6 +15,9 @@ The objective of this project is to develop an efficient and user-friendly Coffe
 3-> Abdullah AL Muhit </br>
 [![wakatime](https://wakatime.com/badge/user/aaefaa84-9d83-42ba-9869-9891679ad01d/project/a19440b4-da64-4d0f-b45b-2a6574d77806.svg)](https://wakatime.com/badge/user/aaefaa84-9d83-42ba-9869-9891679ad01d/project/a19440b4-da64-4d0f-b45b-2a6574d77806)
 
+4-> Sourav Dev </br>
+[![wakatime](https://wakatime.com/badge/user/037d3863-0437-4965-9b1f-18c891f54dbc/project/e28bbb26-e7cf-446a-8692-383f1c7a9d12.svg)](https://wakatime.com/badge/user/037d3863-0437-4965-9b1f-18c891f54dbc/project/e28bbb26-e7cf-446a-8692-383f1c7a9d12)
+
 ## Target Audience
 The target audience includes coffee shop owners, managers, and staff who require a comprehensive digital solution to manage daily operations. It also caters to customers by providing an intuitive ordering and feedback system.
 ## Details of Core Features
