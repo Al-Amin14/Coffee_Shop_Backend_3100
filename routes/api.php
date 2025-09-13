@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -16,22 +17,23 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\CommentController;
 
 /*
-|--------------------------------------------------------------------------
-| Public Routes (No JWT Required)
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
+| Public Routes (No JWT Required) 
+|-------------------------------------------------------------------------- 
 */
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Stripe webhook route (public)
+
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
 /*
-|--------------------------------------------------------------------------
-| Protected Routes (JWT Required)
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
+| Protected Routes (JWT Required) 
+|-------------------------------------------------------------------------- 
 */
 Route::post('/create-checkout-session', [StripeController::class, 'createCheckoutSession'])->middleware('jwt.verify');
 // Route::middleware(middleware: ['jwt.verify'])->group(function () {
@@ -71,7 +73,6 @@ Route::post('/create-checkout-session', [StripeController::class, 'createCheckou
 //     Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart']);
 // });
 
-// Optional: Sanctum authenticated user route example if needed
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -98,6 +99,11 @@ Route::post('/orders/confirm/{id}', action: [ConfirmController::class, 'confirm'
 Route::put('/orders/{id}/confirmed-by', [OrderController::class, 'updateConfirmedBy'])->middleware('jwt.verify');
 Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->middleware('jwt.verify');
 Route::get('/dashboard/recent-orders', [DashboardController::class, 'recentOrders'])->middleware('jwt.verify');
+Route::post('/comments', [CommentController::class, 'store'])->middleware('jwt.verify');
+Route::get('/comments/{productId}', [CommentController::class, 'index'])->middleware('jwt.verify');
+;
+Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->middleware('jwt.verify');
+;
 
 
 
