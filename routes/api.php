@@ -7,6 +7,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Chart;
 use App\Http\Controllers\ConfirmController;
+use App\Http\Controllers\DashboardController;
+
 //
 // 🔓 Public Routes
 //
@@ -94,6 +96,10 @@ Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart'])->middleware('jw
 Route::post('/checkout', [ConfirmController::class, 'checkout'])->middleware('jwt.verify');
 Route::post('/orders/confirm/{id}', action: [ConfirmController::class, 'confirm'])->middleware('jwt.verify');
 Route::put('/orders/{id}/confirmed-by', [OrderController::class, 'updateConfirmedBy'])->middleware('jwt.verify');
+Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->middleware('jwt.verify');
+Route::get('/dashboard/recent-orders', [DashboardController::class, 'recentOrders'])->middleware('jwt.verify');
+
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
