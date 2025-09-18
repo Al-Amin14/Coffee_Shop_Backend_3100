@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 
-class Chart extends Controller
+class CartController  extends Controller
 {
     // 1️⃣ Add to cart
     public function addToCart(Request $request)
