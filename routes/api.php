@@ -56,16 +56,16 @@ Route::post('/create-checkout-session', [StripeController::class, 'createCheckou
 //     Route::post('/orders', [OrderController::class, 'store']);
 //     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
-//     // 📊 CartControllers
-//     Route::get('/CartControllers/data', [CartController::class, 'getData']);
+//     // 📊 Charts
+//     Route::get('/charts/data', [Chart::class, 'getData']);
 
-//     // Cart/CartController related routes
-//     Route::post('/addCartController', [CartController::class, 'addToCart']);
-//     Route::post('/increment', [CartController::class, 'increment']);
-//     Route::post('/decrement', [CartController::class, 'decrement']);
-//     Route::put('/cart/increment/{cartId}', [CartController::class, 'increment']);
-//     Route::put('/cart/decrement/{cartId}', [CartController::class, 'decrement']);
-//     Route::get('/user-cart/{userId}', [CartController::class, 'getUserCart']);
+//     // Cart/Chart related routes
+//     Route::post('/addchart', [Chart::class, 'addToCart']);
+//     Route::post('/increment', [Chart::class, 'increment']);
+//     Route::post('/decrement', [Chart::class, 'decrement']);
+//     Route::put('/cart/increment/{cartId}', [Chart::class, 'increment']);
+//     Route::put('/cart/decrement/{cartId}', [Chart::class, 'decrement']);
+//     Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart']);
 // });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -85,7 +85,7 @@ Route::post('/orders', [OrderController::class, 'store'])->middleware('jwt.verif
 Route::post('/increment', [CartController::class, 'increment'])->middleware('jwt.verify');
 Route::post('/decrement', [CartController::class, 'decrement'])->middleware('jwt.verify');
 
-Route::post('/addCartController', [CartController::class, 'addToCart'])->middleware('jwt.verify');
+Route::post('/addchart', [CartController::class, 'addToCart'])->middleware('jwt.verify');
 Route::put('/cart/increment/{cartId}', [CartController::class, 'increment'])->middleware('jwt.verify');
 Route::put('/cart/decrement/{cartId}', [CartController::class, 'decrement'])->middleware('jwt.verify');
 Route::get('/user-cart/{userId}', [CartController::class, 'getUserCart'])->middleware('jwt.verify');
