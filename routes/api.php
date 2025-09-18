@@ -7,12 +7,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\ConfirmController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ConfirmController;
 
 
 
