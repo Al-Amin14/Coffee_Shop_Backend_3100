@@ -1,7 +1,7 @@
-CREATE DATABASE IF NOT EXISTS coffeeshop DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS user DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE coffeeshop;
-    
+USE user;
+
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE `users` (
@@ -27,3 +27,13 @@ ALTER TABLE `users`
 ADD CONSTRAINT `chk_contact_number_length` CHECK (
     CHAR_LENGTH(`contact_number`) = 11
 );
+
+
+CREATE TRIGGER set_email_verified_at
+BEFORE INSERT ON `users`
+FOR EACH ROW
+BEGIN
+    IF NEW.email_verified_at IS NULL THEN
+        SET NEW.email_verified_at = NOW();
+    END IF;
+END;
