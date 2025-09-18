@@ -101,7 +101,6 @@ class StripeController extends Controller
                 'status' => 'completed',
             ]);
 
-            // Save order items with raw BDT unit price
             foreach ($items as $item) {
                 OrderItem::create([
                     'deposit_id' => $deposit->id,
@@ -111,21 +110,21 @@ class StripeController extends Controller
                 ]);
             }
 
-            // ====== NEW ORDER + CONFIRMED ORDER CREATION ======
-            $cartItems = Cart::where('user_id', $user->id)->with('product')->get();
             $orderIds = [];
 
-            foreach ($cartItems as $cartItem) {
+            foreach ($items as $item) {
                 $order = Order::create([
                     'user_id' => $user->id,
-                    'product_name' => $cartItem->product->product_name ?? 'Unknown Product',
-                    'quantity' => $cartItem->quantity,
-                    'total_price' => $cartItem->quantity * $cartItem->unit_price,
-                    'image_path' => $cartItem->product->image_path ?? null,
+                    'product_name' => !empty($item['product_name']) ? $item['product_name'] : 'Coffee',
+                    'quantity' => $item['quantity'] ?? 1,
+                    'total_price' => ((float) $item['amount']) * ($item['quantity'] ?? 1),
+                    'image_path' => $item['image_path'] ?? null, // if you send it from frontend
                     'status' => 'completed',
                 ]);
+
                 $orderIds[] = $order->id;
             }
+
 
             if (!empty($orderIds)) {
                 ConfirmedOrder::create([

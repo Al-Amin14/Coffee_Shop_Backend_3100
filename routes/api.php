@@ -9,6 +9,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Chart;
 use App\Http\Controllers\ConfirmController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContactUsController;
+
 
 //
 // 🔓 Public Routes
@@ -101,9 +103,14 @@ Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->middlewar
 Route::get('/dashboard/recent-orders', [DashboardController::class, 'recentOrders'])->middleware('jwt.verify');
 Route::post('/comments', [CommentController::class, 'store'])->middleware('jwt.verify');
 Route::get('/comments/{productId}', [CommentController::class, 'index'])->middleware('jwt.verify');
-;
 Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->middleware('jwt.verify');
-;
+
+Route::get('/contact-us', [ContactUsController::class, 'index']);
+Route::post('/contact-us', [ContactUsController::class, 'store']);
+Route::get('/contact-us/{id}', [ContactUsController::class, 'show']);
+Route::delete('/contact-us/{id}', [ContactUsController::class, 'destroy']);
+
+
 
 
 
