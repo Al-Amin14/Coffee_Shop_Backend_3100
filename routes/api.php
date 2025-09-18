@@ -10,28 +10,21 @@ use App\Http\Controllers\Chart;
 use App\Http\Controllers\ConfirmController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactUsController;
-
-
-//
-// 🔓 Public Routes
-//
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\CommentController;
 
-/*
-|-------------------------------------------------------------------------- 
-| Public Routes (No JWT Required) 
-|-------------------------------------------------------------------------- 
-*/
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+
 
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/', function () {
+    return view('welcome'); // <-- make sure home.blade.php exists in resources/views
+});
 /*
 |-------------------------------------------------------------------------- 
 | Protected Routes (JWT Required) 
@@ -80,8 +73,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Public authentication routes
-Route::post('login', [AuthController::class, 'login']);
-Route::post('register', [AuthController::class, 'register']);
+// Route::post('login', [AuthController::class, 'login']);
+// Route::post('register', [AuthController::class, 'register']);
 
 
 Route::get('/allproducts', [ProductController::class, 'allProducts'])->middleware('jwt.verify');
