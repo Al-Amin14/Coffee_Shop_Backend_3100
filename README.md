@@ -356,7 +356,7 @@ https://www.figma.com/design/SvXCRA28QLWCbgFWzwbXhZ/A1_group07_Coffee_Shop?node-
 
 ### Collaborators (from README)
 - 1-> Md. Shahadat Hossain<br> 
-WakaTime badge frontend <br> [![wakatime](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e.svg)](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e)<br>
+WakaTime badge frontend <br> [![wakatime](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/3956b48d-b743-49f7-a0cf-31a4aeed01e1.svg)](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/3956b48d-b743-49f7-a0cf-31a4aeed01e1)<br>
 WakaTime badge backend<br>
 [![wakatime](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e.svg)](https://wakatime.com/badge/user/3e03447a-8791-4526-b6ff-5bcb2cdcbb30/project/eb5a27b1-35c5-4cf9-bf3f-2a936bd9628e)
 - 2-> AL AMIN JIHAD <br>
