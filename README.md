@@ -171,32 +171,40 @@ npm run dev
 > These images are placeholders so you can see layout. Replace them with real screenshots from the live site.
 
 - **Dashboard**  
-  ![alt text](image-7.png)
+  <img width="1898" height="892" alt="image" src="https://github.com/user-attachments/assets/ddf2e842-f891-4089-bd16-e1324ba7481d" />
+
 
 - **Menu / Products**  
-  ![alt text](image.png)
-   ![alt text](image-3.png)
+  <img width="1872" height="891" alt="Screenshot 2025-09-20 184051" src="https://github.com/user-attachments/assets/6d0f62b6-9a41-4366-811a-d46eec8f8e07" />
+   <img width="1884" height="894" alt="Screenshot 2025-09-20 184337" src="https://github.com/user-attachments/assets/f41c850f-4222-4285-9215-0d2f0e3f94e4" />
+
 
 - **Order**  
-  ![alt text](image-1.png)
+  <img width="1897" height="876" alt="image" src="https://github.com/user-attachments/assets/4f674a3a-122a-4b33-b7af-e88d56620ef9" />
+
   
-- **Cart**  
-  ![alt text](image-2.png)
+- **Cart**
+  <img width="1832" height="887" alt="Screenshot 2025-09-20 184252" src="https://github.com/user-attachments/assets/089b9d47-ad47-4c79-8684-a559809ed7de" />
+
 
 - **Checkout**  
-  ![alt text](image-6.png)
+  <img width="1874" height="891" alt="Screenshot 2025-09-20 185207" src="https://github.com/user-attachments/assets/21b0a897-7536-4705-a47f-caaaf283ec1b" />
 
 - **Contact us**  
-  ![alt text](image-4.png)
+  <img width="1854" height="892" alt="Screenshot 2025-09-20 184747" src="https://github.com/user-attachments/assets/bb169073-b519-4837-b038-06e9ec16b615" />
+
 
 - **Profile**  
-  ![alt text](image-5.png)
+  <img width="1870" height="889" alt="Screenshot 2025-09-20 184841" src="https://github.com/user-attachments/assets/8dfef712-2fbc-4c34-ab27-9e639562d13f" />
+
 
 - **Login**  
-  ![alt text](image-8.png)
+  <img width="1887" height="870" alt="Screenshot 2025-09-20 190525" src="https://github.com/user-attachments/assets/0f077438-27fd-4d6d-b5e0-26ced2b2e708" />
+
 
 - **SignUp**  
-  ![alt text](image-9.png)
+  <img width="1877" height="907" alt="Screenshot 2025-09-20 190617" src="https://github.com/user-attachments/assets/b3afd0ce-7cb3-438f-8ba2-28ac700acc3f" />
+
 
 
 ---
