@@ -13,6 +13,8 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ConfirmController;
+use App\Http\Controllers\GenAiController;
+
 
 
 
@@ -23,7 +25,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/', function () {
-    return view('welcome'); // <-- make sure home.blade.php exists in resources/views
+    return view('welcome');
+});
+Route::get('/hello', function () {
+    return response()->json(['error'=>'Message']);
 });
 /*
 |-------------------------------------------------------------------------- 
@@ -102,6 +107,10 @@ Route::get('/contact-us', [ContactUsController::class, 'index']);
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 Route::get('/contact-us/{id}', [ContactUsController::class, 'show']);
 Route::delete('/contact-us/{id}', [ContactUsController::class, 'destroy']);
+
+
+Route::post('/genai', [GenAiController::class, 'generate'])->middleware('jwt.verify');
+
 
 
 

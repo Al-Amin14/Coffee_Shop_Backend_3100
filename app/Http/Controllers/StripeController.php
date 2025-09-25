@@ -23,6 +23,7 @@ class StripeController extends Controller
      */
     public function createCheckoutSession(Request $request)
     {
+        // return response()->json(['not working'=>'not Working']);
         $user = Auth::user(); // ensure user is authenticated
 
         if (!$user) {
@@ -89,8 +90,8 @@ class StripeController extends Controller
                 'payment_method_types' => ['card'],
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => 'https://coffee-sync.vercel.app/success',
-                'cancel_url' => 'https://coffee-sync.vercel.app/cancel',
+                'success_url' => 'http://localhost:5173/success',
+                'cancel_url' => 'http://localhost:5173/cancel',
             ]);
 
             // Save deposit in DB — store raw BDT amount (for easier display)
