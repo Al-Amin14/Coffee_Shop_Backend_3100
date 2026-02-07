@@ -22,4 +22,4 @@ CREATE TABLE `products` (
 ALTER TABLE `products` ADD CONSTRAINT `price` CHECK (`price` > 50);
 
 ALTER TABLE `products`
-ADD CONSTRAINT `stock_quantity` CHECK (`stock_quantity` > 1);
+ADD CONSTRAINT `stock_quantity` CHECK (`stock_quantity` >= 0);

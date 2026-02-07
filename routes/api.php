@@ -16,6 +16,7 @@ use App\Http\Controllers\CommentController;
 | Public Routes (No JWT Required) 
 |-------------------------------------------------------------------------- 
 */
+Route::put('/products/update-stock/{id}', [ProductController::class, 'updateStock']);
 Route::post('/register', [AuthController::class, 'register']); 
 Route::post('/login', [AuthController::class, 'login']); 
 
@@ -68,6 +69,13 @@ Route::middleware(['jwt.verify'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store']); 
     Route::get('/comments/{productId}', [CommentController::class, 'index']); 
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']); 
+    //Route::post('/update-stock', [ProductController::class, 'updateStock']);
+     //Route::put('/products/update-stock/{id}', [ProductController::class, 'updateStock']);
+      
+  
+     Route::get('/checkout-success/{sessionId}', [StripeController::class, 'getCheckoutSuccess']);
+
+
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

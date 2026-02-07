@@ -8,20 +8,17 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use App\Models\Deposit;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
+use Illuminate\Support\Facades\Auth;
 
 class StripeController extends Controller
 {
     /**
-     * Create a Stripe Checkout session for multiple items and save to MySQL.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Step 1: Create a Stripe Checkout session
      */
     public function createCheckoutSession(Request $request)
     {
-        $user = Auth::user(); // ensure user is authenticated
+        $user = Auth::user();
 
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -35,26 +32,11 @@ class StripeController extends Controller
 
         $line_items = [];
         $totalAmountBDT = 0;
-        $totalAmountPaisa = 0;
 
-        foreach ($items as $index => $item) {
-            // Validate input with amount as raw BDT decimal
-            $validator = Validator::make($item, [
-                'product_name' => 'required|string',
-                'amount' => 'required|numeric|min:0.01',  // raw BDT amount minimum 0.01
-                'quantity' => 'integer|min:1'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => "Invalid input for item #$index",
-                    'messages' => $validator->errors()
-                ], 422);
-            }
-
+        foreach ($items as $item) {
             $quantity = $item['quantity'] ?? 1;
             $amountBDT = (float) $item['amount'];
-            $amountPaisa = (int) round($amountBDT * 100); // convert BDT to paisa for Stripe
+            $amountPaisa = (int) round($amountBDT * 100);
 
             $line_items[] = [
                 'price_data' => [
@@ -68,15 +50,6 @@ class StripeController extends Controller
             ];
 
             $totalAmountBDT += $amountBDT * $quantity;
-            $totalAmountPaisa += $amountPaisa * $quantity;
-        }
-
-        // Minimum amount check in BDT
-        if ($totalAmountBDT < 20) {
-            return response()->json([
-                'error' => 'Minimum amount not met',
-                'message' => 'Total amount must be at least ৳20'
-            ], 422);
         }
 
         try {
@@ -87,30 +60,27 @@ class StripeController extends Controller
                 'payment_method_types' => ['card'],
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => 'http://localhost:5173/success',
-                'cancel_url' => 'http://localhost:5173/cancel',
+                // CRITICAL FIX: The {CHECKOUT_SESSION_ID} allows React to fetch data later
+                'success_url' => 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => 'http://localhost:5173/payment',
             ]);
 
-            // Save deposit in DB — store raw BDT amount (for easier display)
+            // Save initial deposit as 'pending'
             $deposit = Deposit::create([
                 'user_id' => $user->id,
-                'amount' => $totalAmountBDT,  // raw BDT
+                'amount' => $totalAmountBDT,
                 'session_id' => $session->id,
-                'status' => 'completed',
+                'status' => 'pending', 
             ]);
 
-            // Save order items with raw BDT unit price
             foreach ($items as $item) {
                 OrderItem::create([
                     'deposit_id' => $deposit->id,
                     'product_name' => $item['product_name'],
-                    'unit_price' => (float) $item['amount'],  // raw BDT
+                    'unit_price' => (float) $item['amount'],
                     'quantity' => $item['quantity'] ?? 1,
                 ]);
             }
-
-            // Clear user's cart after creating order
-            Cart::where('user_id', $user->id)->delete();
 
             return response()->json([
                 'id' => $session->id,
@@ -121,6 +91,52 @@ class StripeController extends Controller
             return response()->json([
                 'error' => 'Stripe error',
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Step 2: Fetch data for the Success Page Slip
+     */
+    public function getCheckoutSuccess($sessionId)
+    {
+        try {
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            // Retrieve the session from Stripe and expand line items
+            $session = Session::retrieve([
+                'id' => $sessionId,
+                'expand' => ['line_items']
+            ]);
+
+            // Update Database Status
+            $deposit = Deposit::where('session_id', $sessionId)->first();
+            if ($deposit) {
+                $deposit->update(['status' => 'completed']);
+                
+                // Clear user's cart ONLY after successful verification
+                Cart::where('user_id', $deposit->user_id)->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'order' => [
+                    'customer' => $session->customer_details->name ?? 'Valued Customer',
+                    'total_amount' => $session->amount_total / 100,
+                    'order_number' => strtoupper(substr($session->id, -10)),
+                    'items' => array_map(function ($item) {
+                        return [
+                            'product_name' => $item->description,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->amount_total / ($item->quantity * 100),
+                        ];
+                    }, $session->line_items->data)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification failed: ' . $e->getMessage()
             ], 500);
         }
     }
