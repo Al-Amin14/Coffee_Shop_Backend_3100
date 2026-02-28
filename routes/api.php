@@ -17,6 +17,14 @@ use App\Http\Controllers\GenAiController;
 
 
 
+/*
+|-------------------------------------------------------------------------- 
+| Public Routes (No JWT Required) 
+|-------------------------------------------------------------------------- 
+*/
+Route::put('/products/update-stock/{id}', [ProductController::class, 'updateStock']);
+Route::post('/register', [AuthController::class, 'register']); 
+Route::post('/login', [AuthController::class, 'login']); 
 
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
@@ -64,13 +72,25 @@ Route::post('/create-checkout-session', [StripeController::class, 'createCheckou
 //     // 📊 Charts
 //     Route::get('/charts/data', [Chart::class, 'getData']);
 
-//     // Cart/Chart related routes
-//     Route::post('/addchart', [Chart::class, 'addToCart']);
-//     Route::post('/increment', [Chart::class, 'increment']);
-//     Route::post('/decrement', [Chart::class, 'decrement']);
-//     Route::put('/cart/increment/{cartId}', [Chart::class, 'increment']);
-//     Route::put('/cart/decrement/{cartId}', [Chart::class, 'decrement']);
-//     Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart']);
+   
+    Route::post('/addchart', [Chart::class, 'addToCart']); 
+    Route::post('/increment', [Chart::class, 'increment']); 
+    Route::post('/decrement', [Chart::class, 'decrement']); 
+    Route::put('/cart/increment/{cartId}', [Chart::class, 'increment']); 
+    Route::put('/cart/decrement/{cartId}', [Chart::class, 'decrement']); 
+    Route::get('/user-cart/{userId}', [Chart::class, 'getUserCart']); 
+
+    
+    Route::post('/comments', [CommentController::class, 'store']); 
+    Route::get('/comments/{productId}', [CommentController::class, 'index']); 
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy']); 
+    //Route::post('/update-stock', [ProductController::class, 'updateStock']);
+     //Route::put('/products/update-stock/{id}', [ProductController::class, 'updateStock']);
+      
+  
+     Route::get('/checkout-success/{sessionId}', [StripeController::class, 'getCheckoutSuccess']);
+
+
 // });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
