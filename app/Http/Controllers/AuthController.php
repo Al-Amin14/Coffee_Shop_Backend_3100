@@ -106,4 +106,30 @@ class AuthController extends Controller
             'user' => auth()->user(),
         ]);
     }
+
+    public function getAllUsers()
+    {
+        try {
+            if (auth()->user()->role !== 'Manager') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
+            $users = User::select('id', 'name', 'email', 'contact_number', 'role', 'created_at')->get();
+
+            return response()->json([
+                'success' => true,
+                'users' => $users
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch users',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

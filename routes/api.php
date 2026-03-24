@@ -123,6 +123,8 @@ Route::post('/comments', [CommentController::class, 'store'])->middleware('jwt.v
 Route::get('/comments/{productId}', [CommentController::class, 'index'])->middleware('jwt.verify');
 Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->middleware('jwt.verify');
 
+Route::get('/users', [AuthController::class, 'getAllUsers'])->middleware('jwt.verify');
+
 Route::get('/contact-us', [ContactUsController::class, 'index']);
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 Route::get('/contact-us/{id}', [ContactUsController::class, 'show']);
@@ -130,7 +132,6 @@ Route::delete('/contact-us/{id}', [ContactUsController::class, 'destroy']);
 
 
 Route::post('/genai', [GenAiController::class, 'generate'])->middleware('jwt.verify');
-
 
 
 
