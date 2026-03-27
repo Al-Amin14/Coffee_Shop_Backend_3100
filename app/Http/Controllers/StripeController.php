@@ -4,62 +4,79 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use App\Models\Deposit;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
-use App\Models\ConfirmedOrder;
-use App\Models\Order;
 
 class StripeController extends Controller
 {
     /**
-     * Create a Stripe Checkout session for multiple items and save to MySQL.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Initialize Stripe
+     */
+    private function initStripe()
+    {
+        Stripe::setApiKey(config('services.stripe.secret'));
+    }
+
+    /**
+     * Validate incoming request
+     */
+    private function validateItems($items)
+    {
+        return Validator::make(
+            ['items' => $items],
+            [
+                'items' => 'required|array|min:1',
+                'items.*.product_name' => 'required|string|max:255',
+                'items.*.amount' => 'required|numeric|min:1',
+                'items.*.quantity' => 'nullable|integer|min:1'
+            ]
+        );
+    }
+
+    /**
+     * Convert BDT to Paisa safely
+     */
+    private function convertToPaisa($amount)
+    {
+        return (int) round($amount * 100);
+    }
+
+    /**
+     * Step 1: Create Stripe Checkout Session
      */
     public function createCheckoutSession(Request $request)
     {
-        // return response()->json(['not working'=>'not Working']);
-        $user = Auth::user(); // ensure user is authenticated
+        $user = Auth::user();
 
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $items = $request->input('items', []);
+        $items = $request->input('items');
 
-        if (empty($items)) {
-            return response()->json(['error' => 'No items provided'], 422);
+        // Validate input
+        $validator = $this->validateItems($items);
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $validator->errors()
+            ], 422);
         }
 
-        $line_items = [];
+        $lineItems = [];
         $totalAmountBDT = 0;
-        $totalAmountPaisa = 0;
 
-        foreach ($items as $index => $item) {
-            // Validate input with amount as raw BDT decimal
-            $validator = Validator::make($item, [
-                'product_name' => 'required|string',
-                'amount' => 'required|numeric|min:0.01',  // raw BDT amount minimum 0.01
-                'quantity' => 'integer|min:1'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => "Invalid input for item #$index",
-                    'messages' => $validator->errors()
-                ], 422);
-            }
-
+        foreach ($items as $item) {
             $quantity = $item['quantity'] ?? 1;
             $amountBDT = (float) $item['amount'];
-            $amountPaisa = (int) round($amountBDT * 100); // convert BDT to paisa for Stripe
+            $amountPaisa = $this->convertToPaisa($amountBDT);
 
-            $line_items[] = [
+            $lineItems[] = [
                 'price_data' => [
                     'currency' => 'bdt',
                     'unit_amount' => $amountPaisa,
@@ -71,82 +88,46 @@ class StripeController extends Controller
             ];
 
             $totalAmountBDT += $amountBDT * $quantity;
-            $totalAmountPaisa += $amountPaisa * $quantity;
-        }
-
-        // Minimum amount check in BDT
-        if ($totalAmountBDT < 20) {
-            return response()->json([
-                'error' => 'Minimum amount not met',
-                'message' => 'Total amount must be at least ৳20'
-            ], 422);
         }
 
         try {
-            Stripe::setApiKey(env('STRIPE_SECRET'));
+            $this->initStripe();
 
-            // Create Stripe checkout session
             $session = Session::create([
                 'payment_method_types' => ['card'],
-                'line_items' => $line_items,
+                'line_items' => $lineItems,
                 'mode' => 'payment',
-                'success_url' => 'https://coffee-sync.vercel.app/success',
-                'cancel_url' => 'https://coffee-sync.vercel.app/cancel',
+                'success_url' => config('app.frontend_url') . '/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => config('app.frontend_url') . '/payment',
             ]);
 
-            // Save deposit in DB — store raw BDT amount (for easier display)
+            // Store deposit (pending)
             $deposit = Deposit::create([
                 'user_id' => $user->id,
-                'amount' => $totalAmountBDT,  // raw BDT
+                'amount' => $totalAmountBDT,
                 'session_id' => $session->id,
-                'status' => 'completed',
+                'status' => 'pending',
             ]);
 
+            // Save order items
             foreach ($items as $item) {
                 OrderItem::create([
                     'deposit_id' => $deposit->id,
                     'product_name' => $item['product_name'],
-                    'unit_price' => (float) $item['amount'],  // raw BDT
+                    'unit_price' => (float) $item['amount'],
                     'quantity' => $item['quantity'] ?? 1,
                 ]);
             }
-
-            $orderIds = [];
-
-            foreach ($items as $item) {
-                $order = Order::create([
-                    'user_id' => $user->id,
-                    'product_name' => !empty($item['product_name']) ? $item['product_name'] : 'Coffee',
-                    'quantity' => $item['quantity'] ?? 1,
-                    'total_price' => ((float) $item['amount']) * ($item['quantity'] ?? 1),
-                    'image_path' => $item['image_path'] ?? null, // if you send it from frontend
-                    'status' => 'completed',
-                ]);
-
-                $orderIds[] = $order->id;
-            }
-
-
-            if (!empty($orderIds)) {
-                ConfirmedOrder::create([
-                    'order_id' => $orderIds[0], // you can change to last() or all if needed
-                    'user_id' => $user->id,
-                    'payment_status' => 'pending',
-                    'payment_method' => $request->payment_method ?? 'card',
-                    'delivery_address' => $request->delivery_address ?? 'N/A',
-                    'delivery_status' => 'pending',
-                ]);
-            }
-
-            // Clear user's cart after creating order
-            Cart::where('user_id', $user->id)->delete();
 
             return response()->json([
-                'id' => $session->id,
-                'url' => $session->url
+                'success' => true,
+                'session_id' => $session->id,
+                'checkout_url' => $session->url
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Stripe Session Error: ' . $e->getMessage());
+
             return response()->json([
                 'error' => 'Stripe error',
                 'message' => $e->getMessage()
@@ -154,4 +135,89 @@ class StripeController extends Controller
         }
     }
 
+    /**
+     * Step 2: Handle Success Page Data
+     */
+    public function getCheckoutSuccess($sessionId)
+    {
+        try {
+            $this->initStripe();
+
+            $session = Session::retrieve([
+                'id' => $sessionId,
+                'expand' => ['line_items', 'customer_details']
+            ]);
+
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid session'
+                ], 404);
+            }
+
+            // Verify payment status
+            if ($session->payment_status !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment not completed'
+                ], 400);
+            }
+
+            // Update deposit
+            $deposit = Deposit::where('session_id', $sessionId)->first();
+
+            if ($deposit && $deposit->status !== 'completed') {
+                $deposit->update(['status' => 'completed']);
+
+                // Clear cart
+                Cart::where('user_id', $deposit->user_id)->delete();
+            }
+
+            // Format items
+            $items = [];
+            foreach ($session->line_items->data as $item) {
+                $items[] = [
+                    'product_name' => $item->description,
+                    'quantity' => $item->quantity,
+                    'unit_price' => ($item->amount_total / 100) / $item->quantity,
+                    'total_price' => $item->amount_total / 100
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'order' => [
+                    'customer' => $session->customer_details->name ?? 'Customer',
+                    'email' => $session->customer_details->email ?? null,
+                    'total_amount' => $session->amount_total / 100,
+                    'currency' => strtoupper($session->currency),
+                    'payment_status' => $session->payment_status,
+                    'order_number' => strtoupper(substr($session->id, -10)),
+                    'items' => $items
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Stripe Verification Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Optional: Webhook (recommended for production)
+     */
+    public function handleWebhook(Request $request)
+    {
+        Log::info('Stripe Webhook Received', $request->all());
+
+        // You can verify signature here later
+        // and update deposit status safely from Stripe events
+
+        return response()->json(['status' => 'received']);
+    }
 }
