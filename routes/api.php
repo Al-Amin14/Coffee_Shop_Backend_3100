@@ -110,7 +110,8 @@ Route::delete('/contact-us/{id}', [ContactUsController::class, 'destroy']);
 
 
 Route::post('/genai', [GenAiController::class, 'generate'])->middleware('jwt.verify');
-
+Route::post('/update-stock', [ProductController::class, 'updateStock']);
+Route::put('/products/update-stock/{id}', [ProductController::class, 'updateStock']);
 
 
 
